@@ -33,12 +33,13 @@ import pytz
 
 logger = logging.getLogger("")
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Test kit for Tendermint testnet",
     )
     parser.add_argument(
-        "-c", "--config", 
+        "-c", "--config",
         default="./tmtestplan.yaml",
         help="The path to the configuration file to use (default: ./tmtestplan.yaml)"
     )
@@ -62,7 +63,7 @@ def main():
 
     # network
     parser_network = subparsers.add_parser(
-        "network", 
+        "network",
         help="Network-related functionality",
     )
     subparsers_network = parser_network.add_subparsers(
@@ -73,7 +74,7 @@ def main():
 
     # network deploy
     parser_network_deploy = subparsers_network.add_parser(
-        "deploy", 
+        "deploy",
         help="Deploy a network according to its configuration file",
     )
     parser_network_deploy.add_argument(
@@ -84,7 +85,7 @@ def main():
 
     # network destroy
     parser_network_destroy = subparsers_network.add_parser(
-        "destroy", 
+        "destroy",
         help="Destroy a deployed network",
     )
     parser_network_destroy.add_argument(
@@ -95,7 +96,7 @@ def main():
 
     # network start
     parser_network_start = subparsers_network.add_parser(
-        "start", 
+        "start",
         help="Start one or more node(s) or node group(s)",
     )
     parser_network_start.add_argument(
@@ -113,7 +114,7 @@ def main():
 
     # network stop
     parser_network_stop = subparsers_network.add_parser(
-        "stop", 
+        "stop",
         help="Stop one or more node(s) or node group(s)",
     )
     parser_network_stop.add_argument(
@@ -133,9 +134,9 @@ def main():
     parser_network_fetch_logs = subparsers_network.add_parser(
         "fetch_logs",
         help="Fetch the logs for one or more node(s) or node group(s). " +
-            "Note that this stops any running service instances on the target " +
-            "nodes prior to fetching the logs, and then restarts those instances " +
-            "that were running previously.",
+             "Note that this stops any running service instances on the target " +
+             "nodes prior to fetching the logs, and then restarts those instances " +
+             "that were running previously.",
     )
 
     # network reset
@@ -157,7 +158,7 @@ def main():
 
     # loadtest
     parser_loadtest = subparsers.add_parser(
-        "loadtest", 
+        "loadtest",
         help="Load testing-related functionality",
     )
     subparsers_loadtest = parser_loadtest.add_subparsers(
@@ -169,23 +170,23 @@ def main():
     # loadtest start <id>
     parser_loadtest_start = subparsers_loadtest.add_parser("start", help="Start a specific load test")
     parser_loadtest_start.add_argument(
-        "load_test_id", 
+        "load_test_id",
         help="The ID of the load test to start",
     )
 
     # loadtest stop <id>
     parser_loadtest_stop = subparsers_loadtest.add_parser(
-        "stop", 
+        "stop",
         help="Stop any currently running load tests",
     )
     parser_loadtest_stop.add_argument(
-        "load_test_id", 
+        "load_test_id",
         help="The ID of the load test to stop",
     )
 
     # loadtest destroy
     subparsers_loadtest.add_parser(
-        "destroy", 
+        "destroy",
         help="Stop any currently running load tests",
     )
 
@@ -231,36 +232,38 @@ NODE_PRI_IPS_FILE = "./pri_ips.txt"
 # -----------------------------------------------------------------------------
 
 TestConfig = namedtuple("TestConfig",
-    ["id", "bin","monitoring", "validators", "abci", "load_tests", "home", "tendermint_binaries"],
-    defaults=[None, None, None, dict(), dict(), OrderedDict(), TMTEST_HOME, dict()],
-)
+                        ["id", "bin", "monitoring", "validators", "abci", "load_tests", "home", "tendermint_binaries"],
+                        defaults=[None, None, None, dict(), dict(), OrderedDict(), TMTEST_HOME, dict()],
+                        )
 
 TestNodeRef = namedtuple("TestNodeRef",
-    ["id"],
-    defaults=[None],
-)
+                         ["id"],
+                         defaults=[None],
+                         )
 
 TendermintNodeConfig = namedtuple("TendermintNodeConfig",
-    ["config_path", "config", "priv_validator_key", "node_key", "peer_id"],
-)
+                                  ["config_path", "config", "priv_validator_key", "node_key", "peer_id"],
+                                  )
 
 TendermintNodePrivValidatorKey = namedtuple("TendermintNodePrivValidatorKey",
-    ["address", "pub_key", "priv_key"],
-)
+                                            ["address", "pub_key", "priv_key"],
+                                            )
 
-TendermintNodeKey = namedtuple("TendermintNodeKey", 
-    ["type", "value"],
-)
+TendermintNodeKey = namedtuple("TendermintNodeKey",
+                               ["type", "value"],
+                               )
 
 AnsibleInventoryEntry = namedtuple("AnsibleInventoryEntry",
-    ["alias", "ansible_host", "node_id"],
-    defaults=[None, None, None],
-)
+                                   ["alias", "ansible_host", "node_id"],
+                                   defaults=[None, None, None],
+                                   )
+
 
 def load_key(d, ctx) -> TendermintNodeKey:
     if not isinstance(d, dict):
         raise Exception("Expected key to consist of key/value pairs (%s)" % ctx)
     return TendermintNodeKey(**d)
+
 
 def load_tendermint_priv_validator_key(path: str) -> TendermintNodePrivValidatorKey:
     with open(path, "rt") as f:
@@ -275,6 +278,7 @@ def load_tendermint_priv_validator_key(path: str) -> TendermintNodePrivValidator
     }
     return TendermintNodePrivValidatorKey(**cfg)
 
+
 # -----------------------------------------------------------------------------
 #
 #   Core functionality
@@ -285,7 +289,7 @@ def tmtest(cfg_file, command, subcommand, **kwargs) -> int:
     """The primary programmatic interface to the tm-test tool. Allows the
     tool to be imported from other Python code. Returns the intended exit code
     from execution."""
-    
+
     try:
         cfg = load_test_config(cfg_file)
     except Exception as e:
@@ -306,8 +310,8 @@ def tmtest(cfg_file, command, subcommand, **kwargs) -> int:
             fn = network_fetch_logs
     #     elif subcommand == "reset":
     #         fn = network_reset
-        # elif subcommand == "info":
-        #     fn = network_info
+    # elif subcommand == "info":
+    #     fn = network_info
     # elif command == "loadtest":
     #     if subcommand == "start":
     #         fn = loadtest_start
@@ -319,20 +323,21 @@ def tmtest(cfg_file, command, subcommand, **kwargs) -> int:
     if fn is None:
         logger.error("Command/sub-command not yet supported: %s %s", command, subcommand)
         return 1
-    
+
     try:
         fn(cfg, **kwargs)
     except Exception as e:
         logger.error("Failed to execute \"%s %s\" for configuration file: %s", command, subcommand, cfg_file)
         logger.exception(e)
         return 1
-    
+
     return 0
 
+
 def network_deploy(
-    cfg: "TestConfig",
-    keep_existing_tendermint_config: bool = False,
-    **kwargs,
+        cfg: "TestConfig",
+        keep_existing_tendermint_config: bool = False,
+        **kwargs,
 ):
     """Deploys the network according to the given configuration."""
 
@@ -344,16 +349,19 @@ def network_deploy(
         **kwargs,
     )
 
+
 def network_start(cfg: "TestConfig", **kwargs):
     network_state(cfg, "started", **kwargs)
+
 
 def network_stop(cfg: "TestConfig", **kwargs):
     network_state(cfg, "stopped", **kwargs)
 
+
 def network_state(
-    cfg: "TestConfig",
-    state: str,
-    **kwargs,
+        cfg: "TestConfig",
+        state: str,
+        **kwargs,
 ):
     logger.info("Attempting to change state of network component(s): %s", state)
     ansible_set_tendermint_nodes_state(
@@ -362,19 +370,21 @@ def network_state(
     )
     logger.info("Successfully changed state of network component(s): %s", state)
 
+
 def network_fetch_logs(
-    cfg: "TestConfig",
-    **kwargs
+        cfg: "TestConfig",
+        **kwargs
 ):
     logger.info("Fetching logs")
     ansible_fetch_logs(
         os.path.join(cfg.home, "tendermint"),
     )
 
+
 def deploy_tendermint_network(
-    cfg: "TestConfig",
-    keep_existing_tendermint_config: bool = False,
-    **kwargs,
+        cfg: "TestConfig",
+        keep_existing_tendermint_config: bool = False,
+        **kwargs,
 ):
     """Install Tendermint on all target nodes."""
 
@@ -397,6 +407,7 @@ def deploy_tendermint_network(
         binary_path,
         peers,
     )
+
 
 def tendermint_finalize_config(cfg: "TestConfig", peers: List[TendermintNodeConfig]):
     genesis_doc = {
@@ -427,8 +438,6 @@ def tendermint_finalize_config(cfg: "TestConfig", peers: List[TendermintNodeConf
         _cfg["p2p"]["persistent-peers"] = ",".join(persistent_peers - {node_cfg.peer_id})
         _cfg["rpc"]["laddr"] = "tcp://0.0.0.0:26657"
         _cfg["instrumentation"]["prometheus"] = True
-        _cfg["consensus"]["create-empty-blocks"] = False
-        _cfg["consensus"]["peer-gossip-sleep-duration"] = "0ms"
         save_toml_config(os.path.join(node_cfg.config_path, "config.toml"), _cfg)
 
         node_genesis_file = os.path.join(node_cfg.config_path, "genesis.json")
@@ -437,10 +446,10 @@ def tendermint_finalize_config(cfg: "TestConfig", peers: List[TendermintNodeConf
 
 
 def tendermint_generate_config(
-    workdir: str,
-    validators: int,
-    keep_existing: bool,
-    node_ips: list,
+        workdir: str,
+        validators: int,
+        keep_existing: bool,
+        node_ips: list,
 ) -> List[TendermintNodeConfig]:
     """Generates the Tendermint network configureation for a testnet."""
     logger.info("Genrating Tendermint configuration for testnet")
@@ -448,7 +457,7 @@ def tendermint_generate_config(
         if keep_existing:
             logger.info("Configuration already exists, keeping existing configuration")
             return tendermint_load_peers(workdir, validators)
-        
+
         logger.info("Removing existing configuration directory: %s", workdir)
         shutil.rmtree(workdir)
 
@@ -456,11 +465,12 @@ def tendermint_generate_config(
     cmd = [
         "tendermint", "testnet",
         "--v", "%d" % validators,
-        "--populate-persistent-peers=false", # we'll handle this ourselves later
+        "--populate-persistent-peers=false",  # we'll handle this ourselves later
         "--o", workdir,
     ]
     sh(cmd)
     return tendermint_load_peers(workdir, validators, node_ips)
+
 
 def tendermint_load_peers(base_path: str, node_count: int, node_ips: list) -> List[TendermintNodeConfig]:
     """Loads the relevant Tendermint node configuration for all nodes in the given base path."""
@@ -520,7 +530,7 @@ def load_test_config(filename: str) -> TestConfig:
 
     with open(filename, "rt") as f:
         cfg_dict = yaml.safe_load(f)
-    
+
     if "id" not in cfg_dict:
         raise Exception("Missing required \"id\" parameter in configuration file")
 
@@ -540,6 +550,7 @@ def configure_env_var_yaml_loading(fail_on_missing=False):
         yaml.add_implicit_resolver("!envvar", matcher, None, yaml.SafeLoader)
     yaml.add_constructor("!envvar", make_envvar_constructor(fail_on_missing=fail_on_missing), yaml.SafeLoader)
 
+
 def make_envvar_constructor(fail_on_missing=False):
     def envvar_constructor(loader, node):
         """From https://stackoverflow.com/a/52412796/1156132"""
@@ -553,6 +564,7 @@ def make_envvar_constructor(fail_on_missing=False):
                     raise Exception("Missing environment variable during configuration file parsing: %s" % env_var_name)
                 return os.environ.get(env_var_name, "") + value[match.end():]
         raise Exception("Internal error: environment variable matching algorithm failed")
+
     return envvar_constructor
 
 
@@ -560,6 +572,7 @@ def ensure_path_exists(path):
     if not os.path.isdir(path):
         os.makedirs(path, mode=0o755, exist_ok=True)
         logger.debug("Created folder: %s", path)
+
 
 # def get_current_user() -> str:
 #     return pwd.getpwuid(os.getuid())[0]
@@ -571,9 +584,9 @@ def ensure_path_exists(path):
 # -----------------------------------------------------------------------------
 
 def ansible_deploy_tendermint(
-    cfg: TestConfig,
-    binary_path: str,
-    peers: List[TendermintNodeConfig],
+        cfg: TestConfig,
+        binary_path: str,
+        peers: List[TendermintNodeConfig],
 ):
     workdir = os.path.join(cfg.home, "tendermint")
     if not os.path.isdir(workdir):
@@ -582,15 +595,15 @@ def ansible_deploy_tendermint(
     logger.info("Generating Ansible configuration for all nodes")
     extra_vars = {
         "service_name": "tendermint",
-        "service_user": "root",
-        "service_group": "tendermint",
+        "service_user": "wanggr",
+        "service_group": "hyperchain",
         "service_user_shell": "/bin/bash",
         "service_state": "started",
         "service_template": "tendermint.service.jinja2",
         "service_desc": "Tendermint",
-        "service_exec_cmd": "/usr/local/bin/tendermint node --mode validator --proxy-app=kvstore",
-        "src_binary": "/root/goApps/bin/tendermint",
-        "dest_binary": "/usr/local/bin/tendermint",
+        "service_exec_cmd": "/home/wanggr/bin/tendermint node --mode validator --proxy-app=kvstore",
+        "src_binary": "~/go/src/github.com/tendermint/tendermint/cmd/tendermint/tendermint",
+        "dest_binary": "/home/wanggr/bin/tendermint",
         "src_config_path": os.path.join(workdir, "config"),
     }
 
@@ -602,30 +615,30 @@ def ansible_deploy_tendermint(
         inventory["tendermint"].append(
             AnsibleInventoryEntry(
                 alias="%s" % node_id,
-                ansible_host = peer.peer_id.split("@")[1].split(":")[0],
-                node_id = node_id,
+                ansible_host=peer.peer_id.split("@")[1].split(":")[0],
+                node_id=node_id,
             ),
         )
         i += 1
-
 
     inventory_file = os.path.join(workdir, "inventory")
     save_ansible_inventory(inventory_file, inventory)
     extra_vars_file = os.path.join(workdir, "extra-vars.yaml")
     save_yaml_config(extra_vars_file, extra_vars)
-    
+
     logger.info("Deploying Tendermint network")
     sh([
         "ansible-playbook",
         "-i", inventory_file,
         "-e", "@%s" % extra_vars_file,
-        os.path.join("ansible","deploy.yaml"),
+        os.path.join("ansible", "deploy.yaml"),
     ])
     logger.info("Tendermint network successfully deployed")
 
+
 def ansible_set_tendermint_nodes_state(
-    workdir: str,
-    state: str,
+        workdir: str,
+        state: str,
 ):
     """Attmpts to collect all nodes' details from the given refernces list
     and ensure that they are all set to the desired state (Ansible state)."""
@@ -644,8 +657,9 @@ def ansible_set_tendermint_nodes_state(
     ])
     logger.info("Hosts' state successfully set to \"%s\"", state)
 
+
 def ansible_fetch_logs(
-    workdir: str,
+        workdir: str,
 ):
     inventory_file = os.path.join(workdir, "inventory")
     sh([
@@ -653,6 +667,7 @@ def ansible_fetch_logs(
         "-i", inventory_file,
         os.path.join("ansible", "fetch-logs.yaml"),
     ])
+
 
 # -----------------------------------------------------------------------------
 #
@@ -669,7 +684,7 @@ def sh(cmd):
         while p.poll() is None:
             time.sleep(1)
         print("")
-    
+
         if p.returncode != 0:
             raise Exception("Process failed with return code %d" % p.returncode)
 
@@ -692,15 +707,18 @@ def configure_logging(verbose=False):
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
+
 def save_toml_config(filename, cfg):
     with open(filename, "wt") as f:
         toml.dump(cfg, f)
     logger.debug("Wrote configuration to %s", filename)
 
+
 def save_yaml_config(filename, cfg):
     with open(filename, "wt") as f:
         yaml.safe_dump(cfg, f)
     logger.debug("Wrote configuration to %s", filename)
+
 
 def save_ansible_inventory(filename: str, inventory: OrderedDictType[str, List]):
     """Writes the given inventory structure to an Ansible inventory file.
@@ -727,13 +745,15 @@ def save_ansible_inventory(filename: str, inventory: OrderedDictType[str, List])
                     f.write("%s\n" % line)
                 else:
                     raise Exception("Unknown type for Ansible inventory entry: %s" % entry)
-                    
+
             f.write("\n")
+
 
 def load_toml_config(filename):
     logger.debug("Loading TOML configuration file: %s", filename)
     with open(filename, "rt") as f:
         return toml.load(f)
+
 
 def load_tendermint_node_key(filename: str) -> TendermintNodeKey:
     """Loads the node's private key from the given file."""
@@ -744,6 +764,7 @@ def load_tendermint_node_key(filename: str) -> TendermintNodeKey:
     if node_key["priv_key"].get("type", "") != "tendermint/PrivKeyEd25519":
         raise Exception("The only node key type currently supported is tendermint/PrivKeyEd25519: %s" % filename)
     return TendermintNodeKey(**node_key["priv_key"])
+
 
 def get_ed25519_pub_key(priv_key: str, ctx: str) -> bytes:
     """Returns the public key associated with the given private key. Assumes
@@ -757,26 +778,31 @@ def get_ed25519_pub_key(priv_key: str, ctx: str) -> bytes:
         raise Exception("Public key bytes in ed25519 private key not initialized: %s (%s)" % (priv_key, ctx))
     return pub_key_bytes
 
+
 def resolve_relative_path(path: str, base_path: str) -> str:
     if os.path.isabs(path):
         return path
     return os.path.normpath(os.path.join(base_path, path))
 
+
 def tendermint_peer_id(host: str, address: str = None) -> str:
     return ("%s@%s:26656" % (address, host)) if address is not None else ("%s:26656" % host)
+
 
 def ed25519_pub_key_to_id(pub_key: bytes) -> str:
     """Converts the given ed25519 public key into a Tendermint-compatible ID."""
     sum_truncated = hashlib.sha256(pub_key).digest()[:20]
     return "".join(["%.2x" % b for b in sum_truncated])
 
+
 def unique_peer_ids(
-    peers: List[TendermintNodeConfig],
+        peers: List[TendermintNodeConfig],
 ) -> Set[str]:
     result = set()
     for peer in peers:
         result.add(peer.peer_id)
     return result
+
 
 if __name__ == "__main__":
     main()

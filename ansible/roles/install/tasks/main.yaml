@@ -9,7 +9,7 @@
   user:
     name: "{{ service_user }}"
     shell: "{{ service_user_shell }}"
-    home: "/root"
+    home: "/home/wanggr"
     group: "{{ service_group }}"
 
 - name: Sync the service binary across to the server
@@ -21,30 +21,30 @@
   file:
     path: "{{ dest_binary }}"
     mode: 777
-    owner: "root"
-    group: "root"
+    owner: "wanggr"
+    group: "hyperchain"
 
 - name: Delete any existing Tendermint configuration/data
   file: "path=/{{ service_user }}/.tendermint state=absent"
   when: copy_node_config == True
 
 - name: Optionally truncate Tendermint logs
-  copy: content='' dest=/var/log/tendermint.log
+  copy: content='' dest=/home/wanggr/log/tendermint.log
   when: truncate_logs == True
 
-- name: Restart rsyslog if Tendermint logs were truncated
-  service: name=rsyslog state=restarted
-  when: truncate_logs == True
+#- name: Restart rsyslog if Tendermint logs were truncated
+#  service: name=rsyslog state=restarted
+#  when: truncate_logs == True
 
 - name: Copy the Tendermint node configuration across
   copy:
     src: "{{ src_config_path }}/{{ node_id }}/"
-    dest: "/root/.tendermint/"
+    dest: "/home/wanggr/.tendermint/"
   when: copy_node_config == True
 
 - name: Ensure the service user owns the Tendermint home directory
   file:
-    path: "/root/.tendermint/"
+    path: "/home/wanggr/.tendermint/"
     recurse: yes
     owner: "{{ service_user }}"
     group: "{{ service_group }}"
@@ -52,7 +52,7 @@
 - name: Ensure systemd service is present
   template:
     src: "{{ service_template }}"
-    dest: "/etc/systemd/system/{{ service_name }}.service"
+    dest: "/home/wanggr/system/{{ service_name }}.service"
 
 - name: Reload systemd
   systemd: daemon_reload=yes
